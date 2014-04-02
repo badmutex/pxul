@@ -7,8 +7,8 @@ AUTHORS:
 CHANGES:
  - 2014-04-02: provide `indent()`, `dedent()`, and `writeln()` methods
 """
-
 import StringIO as stringio
+import pdb; pdb.set_trace()
 
 class StringIO(stringio.StringIO):
     def __init__(self, *args, **kws):
