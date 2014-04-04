@@ -26,7 +26,7 @@ class Process(object):
         self.cmd = cmd
 
     def __call__(self):
-        logger.info1('EXECUTING: %s' % self.cmd)
+        logger.info1('EXECUTING: %s' % ' '.join(self.cmd))
         proc = subprocess.Popen(self.cmd,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
