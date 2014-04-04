@@ -24,6 +24,12 @@ class StringIO(stringio.StringIO):
         self.indentlvl = 0
         self._wrote_newline = False
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close()
+
     def indent(self, by=4):
         """Increase the indentation level"""
         self.indentlvl += by
