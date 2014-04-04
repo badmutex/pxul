@@ -2,8 +2,8 @@
 Provide a simple logger to `stdout` or `stderr`
 
 >>> import pxul
->>> pxul.log.debug()
->>> from pxul.log import logger
+>>> pxul.logging.debug()
+>>> from pxul.logging import logger
 >>> logger.debug('fooey')
 >>> logger.info('hello world')
 >>> logger.critical('Launching missiles')
@@ -16,6 +16,7 @@ CHANGES:
  - Add `Logger`, `lvl_name`, and `set_<level>` functions
 
 """
+from __future__ import absolute_import
 from logging import CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET
 import sys
 

@@ -13,7 +13,7 @@ CHANGES:
      - Add `find_in_root`
      - Add `SetEnv`
 """
-
+from __future__ import absolute_import
 import os
 
 
