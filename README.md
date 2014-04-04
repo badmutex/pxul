@@ -6,7 +6,8 @@ pxul
 
 # Summary
 
-Augments to base python modules:
+Modules provided
+  * `command`
   * `logging`
   * `os`
   * `StringIO`
