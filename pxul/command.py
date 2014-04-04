@@ -15,6 +15,7 @@ from __future__ import absolute_import
 from .logging import logger
 from .StringIO import StringIO
 
+import copy
 import os
 import subprocess
 import shlex
@@ -83,8 +84,9 @@ class OptCommand(Command):
     """
 
     def __call__(self, **kws):
-        # prepare the parameters
-        parms = list()
+        # make a copy so that multiple calls don't keep updating the
+        # parameter list
+        tmp_cmd = copy.deepcopy(self._cmd)
         for k, v in kws.iteritems():
             if len(k) == 1:
                 flag = '-' + k
@@ -98,5 +100,7 @@ class OptCommand(Command):
             self.o(arg)
 
         # run
-        return super(OptCommand, self).__call__()
+        result = super(OptCommand, self).__call__()
+        self._cmd = tmp_cmd
+        return result
 
