@@ -21,6 +21,11 @@ import subprocess
 import shlex
 
 
+class ProcessError(Exception):
+    def __init__(self, retcode, cmd, out):
+        msg = 'Command {} returned non-zero exit code {}\n{}'.format(cmd, retcode, out)
+        super(ProcessError, self).__init__(msg)
+
 class Process(object):
     def __init__(self, cmd):
         self.cmd = cmd
@@ -31,10 +36,10 @@ class Process(object):
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
         out, err = proc.communicate()
-        if proc.returncode is not 0:
-            raise subprocess.CalledProcessError(proc.returncode,
-                                                self.cmd, err + out)
         logger.debug('OUTPUT:\n', out + err)
+        if proc.returncode is not 0:
+            raise ProcessError(proc.returncode, self.cmd, err + out)
+
         return out, err
 
 
