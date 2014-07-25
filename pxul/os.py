@@ -88,6 +88,19 @@ class SetEnv(object):
         """
         self.__exit__()
 
+def clear_dir(dirpath):
+    """
+    Recursively delete everything under `dirpath`
+    """
+    for name in glob.iglob(os.path.join(path, '*')):
+        if os.path.isdir(name):
+            clear_dir(name)
+            remove = os.rmdir
+        else:
+            remove = os.unlink
+        logger.info2('Deleting', name)
+        remove(name)
+
 def ensure_dir(path):
     """
     Make sure the `path` if a directory by creating it if needed.
