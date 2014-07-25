@@ -27,14 +27,17 @@ class ProcessError(Exception):
         super(ProcessError, self).__init__(msg)
 
 class Process(object):
-    def __init__(self, cmd):
+    def __init__(self, cmd, **kws):
         self.cmd = cmd
+        self.popen_kws = kws
 
     def __call__(self):
-        logger.info1('EXECUTING: %s' % ' '.join(self.cmd))
+        s = self.cmd if type(self.cmd) is str else ' '.join(self.cmd)
+        logger.info1('EXECUTING: %s' % s)
         proc = subprocess.Popen(self.cmd,
                                 stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+                                stderr=subprocess.PIPE,
+                                **self.popen_kws)
         try:
             out, err = proc.communicate()
         except KeyboardInterrupt:
