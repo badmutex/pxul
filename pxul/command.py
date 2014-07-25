@@ -83,15 +83,22 @@ class OptCommand(Command):
     Returns: (stdout, stderr)
     """
 
+    def __init__(self, *args, **kws):
+        long_pref = kws.pop('long_flag_prefix', '--')
+        short_pref = kws.pop('short_flag_prefix', '-')
+        super(OptCommand, self).__init__(*args, **kws)
+        self._long_flag_prefix = long_pref
+        self._short_flag_prefix = short_pref
+
     def __call__(self, **kws):
         # make a copy so that multiple calls don't keep updating the
         # parameter list
         tmp_cmd = copy.deepcopy(self._cmd)
         for k, v in kws.iteritems():
             if len(k) == 1:
-                flag = '-' + k
+                flag = self._short_flag_prefix + k
             else:
-                flag = '--' + k
+                flag = self._long_flag_prefix + k
             if v is None: continue
             elif type(v) is bool and v:
                 arg = flag
