@@ -35,7 +35,13 @@ class Process(object):
         proc = subprocess.Popen(self.cmd,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
-        out, err = proc.communicate()
+        try:
+            out, err = proc.communicate()
+        except KeyboardInterrupt:
+            proc.terminate()
+            proc.kill()
+            raise
+
         logger.debug('OUTPUT:\n', out + err)
         if proc.returncode is not 0:
             raise ProcessError(proc.returncode, self.cmd, err + out)
