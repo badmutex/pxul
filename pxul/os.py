@@ -100,7 +100,6 @@ def clear_dir(dirpath):
             remove = os.rmdir
         else:
             remove = os.unlink
-        logger.info2('Deleting', name)
         remove(name)
 
 def ensure_dir(path):
