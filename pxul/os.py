@@ -21,6 +21,7 @@ import glob
 class StackDir(object):
     """
     Temporarily enter a directory before return the the current one.
+    If the directory does not exist it will be created.
     Mainly intended to be used as a resource using the `with` statement:
     >>> with StackDir('/tmp/'):
     ...    print os.getcwd()
