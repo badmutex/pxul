@@ -5,6 +5,10 @@ AUTHORS:
  - Badi' Abdul-Wahid
 
 CHANGES:
+ - 2014-08-19:
+     - Cleanup, update documentation
+ - 2014-07-25:
+     - Add `clear_dir`
  - 2013-04-02:
      - Add `StackDir`
      - Add `ensure_dir`

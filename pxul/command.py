@@ -5,6 +5,10 @@ AUTHOR:
  - Badi' Abdul-Wahid
 
 CHANGES:
+ - 2014-07-25:
+     - propagate CTRL-C to subprocess
+     - support specification of flag prefix
+     - Process learned to accept Popen keyword parameters
  - 2014-04-04:
      - Add Process
      - Add Command
