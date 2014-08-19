@@ -66,6 +66,9 @@ class Command(object):
         self._cmd.extend(shlex.split(arg))
         return self
 
+    def _reset(self):
+        self._cmd = [self._cmd[0]]
+
     def __str__(self):
         return '<%s>' % ' '.join(map(repr, self._cmd))
 
@@ -77,7 +80,11 @@ class Command(object):
             return sio.getvalue()
 
     def __call__(self):
-        return Process(self._cmd)()
+        try:
+            result = Process(self._cmd)()
+        finally:
+            self._reset()
+        return result
 
 
 class OptCommand(Command):
