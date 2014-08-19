@@ -7,6 +7,7 @@ AUTHORS:
 CHANGES:
  - 2014-08-19:
      - Cleanup, update documentation
+     - Add `TmpDir`
  - 2014-07-25:
      - Add `clear_dir`
  - 2013-04-02:
@@ -20,7 +21,25 @@ CHANGES:
 from __future__ import absolute_import
 import os
 import glob
+import shutil
+import tempfile
 
+
+class TmpDir(object):
+    """
+    Create a temprorary directory to work in
+    """
+    def __init__(self, *args, **kws):
+        "Accepts the same arguments as `tempfile.mkdtemp`"
+        self._d = tempfile.mkdtemp(*args, **kws)
+        self._sd = StackDir(self._d)
+
+    def __enter__(self):
+        return self._sd.enter()
+
+    def __exit__(self, *args, **kws):
+        self._sd.exit()
+        shutil.rmtree(self._d)
 
 class StackDir(object):
     """
