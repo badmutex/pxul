@@ -15,6 +15,7 @@ CHANGES:
 """
 from __future__ import absolute_import
 import os
+import glob
 
 
 class StackDir(object):
@@ -92,7 +93,7 @@ def clear_dir(dirpath):
     """
     Recursively delete everything under `dirpath`
     """
-    for name in glob.iglob(os.path.join(path, '*')):
+    for name in glob.iglob(os.path.join(dirpath, '*')):
         if os.path.isdir(name):
             clear_dir(name)
             remove = os.rmdir
