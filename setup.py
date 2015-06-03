@@ -6,8 +6,8 @@ import os
 import subprocess
 
 ###################################################################### Version information
-VERSION = '0.1.0'
-ISRELEASED = False
+VERSION = '1.0.0'
+ISRELEASED = True
 __version__ = VERSION
 
 ######################################################################
