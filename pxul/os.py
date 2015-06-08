@@ -145,7 +145,7 @@ def ensure_file(path):
     Make sure the `path` is a file by creating it if needed.
     """
     if os.path.exists(path): return
-    root = os.path.dirname(path)
+    root = os.path.dirname(fullpath(path))
     ensure_dir(root)
     open(path, 'w').close()
 
