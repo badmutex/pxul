@@ -125,6 +125,14 @@ def clear_dir(dirpath):
             remove = os.unlink
         remove(name)
 
+
+def fullpath(path):
+    """
+    Get the absolute path, expanding any variables
+    """
+    return os.path.abspath(os.path.expandvars(os.path.expanduser(path)))
+
+
 def ensure_dir(path):
     """
     Make sure the `path` if a directory by creating it if needed.
