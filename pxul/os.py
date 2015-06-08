@@ -5,6 +5,9 @@ AUTHORS:
  - Badi' Abdul-Wahid
 
 CHANGES:
+ - 2015-06-07:
+     - Add `fullpath`
+     - `ensure_file` should use `fullpath`
  - 2014-08-19:
      - Cleanup, update documentation
      - Add `TmpDir`
