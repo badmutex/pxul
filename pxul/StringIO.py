@@ -5,6 +5,7 @@ AUTHORS:
  - Badi' Abdul-Wahid
 
 CHANGES:
+ - 2015-06-09: prevent dedent lower than zeo
  - 2014-04-02: provide `indent()`, `dedent()`, and `writeln()` methods
 
 
@@ -38,7 +39,8 @@ class StringIO(stringio.StringIO):
     def dedent(self, by=4):
         """Decrease the indentation level"""
         stringio._complain_ifclosed(self.closed)
-        self.indentlvl -= by
+        if self.indentlvl >= by:
+            self.indentlvl -= by
 
     def _write(self, string):
         stringio._complain_ifclosed(self.closed)
