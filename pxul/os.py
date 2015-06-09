@@ -37,7 +37,7 @@ class tmpdir(object):
     def __init__(self, *args, **kws):
         "Accepts the same arguments as `tempfile.mkdtemp`"
         self._d = tempfile.mkdtemp(*args, **kws)
-        self._sd = StackDir(self._d)
+        self._sd = in_dir(self._d)
 
     def __enter__(self):
         return self._sd.enter()
@@ -46,12 +46,12 @@ class tmpdir(object):
         self._sd.exit()
         shutil.rmtree(self._d)
 
-class StackDir(object):
+class in_dir(object):
     """
     Temporarily enter a directory before return the the current one.
     If the directory does not exist it will be created.
     Mainly intended to be used as a resource using the `with` statement:
-    >>> with StackDir('/tmp/'):
+    >>> with in_dir('/tmp/'):
     ...    print os.getcwd()
     """
     def __init__(self, path):

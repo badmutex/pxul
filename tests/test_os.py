@@ -38,12 +38,12 @@ class tmpdir_Test(TestCase):
             self.assertEqual(tmpdir, cwd)
 
 
-class StackDir_Test(TestCase):
+class in_dir_Test(TestCase):
     def test_directory_changed(self):
         "Entering the context should temporarily change directories"
         newdir = os.getenv('HOME')
         starting_cwd = os.getcwd()
-        with pxul.os.StackDir(newdir):
+        with pxul.os.in_dir(newdir):
             new_cwd = os.getcwd()
             self.assertNotEqual(starting_cwd, new_cwd)
             self.assertEqual(newdir, new_cwd)
@@ -53,7 +53,7 @@ class StackDir_Test(TestCase):
 
         tmpdir = tempfile.mkdtemp()
         try:
-            with pxul.os.StackDir(tmpdir):
+            with pxul.os.in_dir(tmpdir):
                 self.assertTrue(os.path.exists(tmpdir))
             self.assertTrue(os.path.exists(tmpdir))
         finally:
