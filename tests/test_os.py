@@ -8,12 +8,12 @@ import uuid
 from unittest import TestCase, expectedFailure
 
 
-class TmpDir_Test(TestCase):
+class tmpdir_Test(TestCase):
     def test_directory_changed(self):
         "Entering the context should temporarily switch to a different working directory"
 
         starting_cwd = os.getcwd()
-        with pxul.os.TmpDir():
+        with pxul.os.tmpdir():
             new_cwd = os.getcwd()
             self.assertNotEqual(starting_cwd, new_cwd)            
 
@@ -21,7 +21,7 @@ class TmpDir_Test(TestCase):
         "Exiting the context should remove the temporary directory"
 
         starting_cwd = os.getcwd()
-        with pxul.os.TmpDir():
+        with pxul.os.tmpdir():
             new_cwd = os.getcwd()
             self.assertTrue(os.path.exists(new_cwd))
         final_cwd = os.getcwd()
@@ -32,7 +32,7 @@ class TmpDir_Test(TestCase):
     def test_context_as_keyword(self):
         "Entering should return the new path when using `with ctx as name`"
 
-        with pxul.os.TmpDir() as tmpdir:
+        with pxul.os.tmpdir() as tmpdir:
             cwd = os.getcwd()
             self.assertIsNotNone(tmpdir)
             self.assertEqual(tmpdir, cwd)
@@ -126,7 +126,7 @@ class ensure_dir_Test(TestCase):
     def test_present(self):
         "ensure_dir should not modify a directory that is already present"
 
-        with pxul.os.TmpDir():
+        with pxul.os.tmpdir():
             cwd = os.getcwd()
             self.assertTrue(os.path.exists(cwd))
 
@@ -165,7 +165,7 @@ class ensure_file_Test(TestCase):
     def test_absent(self):
         "Should create an empty file if it does not exist"
 
-        with pxul.os.TmpDir():
+        with pxul.os.tmpdir():
             name = 'hello.txt'
 
             self.assertFalse(os.path.exists(name))
@@ -174,7 +174,7 @@ class ensure_file_Test(TestCase):
 
     def test_present(self):
         "Should not create a file if it already exists"
-        with pxul.os.TmpDir():
+        with pxul.os.tmpdir():
             name = 'hello.txt'
             open(name, 'w').close()
             stat_before = os.stat(name)

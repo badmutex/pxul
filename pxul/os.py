@@ -5,6 +5,8 @@ AUTHORS:
  - Badi' Abdul-Wahid
 
 CHANGES:
+ - 2015-06-09:
+     - rename TmpDir to tmpdir (issue #5)
  - 2015-06-07:
      - Add `fullpath`
      - `ensure_file` should use `fullpath`
@@ -28,7 +30,7 @@ import shutil
 import tempfile
 
 
-class TmpDir(object):
+class tmpdir(object):
     """
     Create a temprorary directory to work in
     """
