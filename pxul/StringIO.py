@@ -32,13 +32,16 @@ class StringIO(stringio.StringIO):
 
     def indent(self, by=4):
         """Increase the indentation level"""
+        stringio._complain_ifclosed(self.closed)
         self.indentlvl += by
 
     def dedent(self, by=4):
         """Decrease the indentation level"""
+        stringio._complain_ifclosed(self.closed)
         self.indentlvl -= by
 
     def _write(self, string):
+        stringio._complain_ifclosed(self.closed)
         if '\n' in string:
             self._wrote_newline = True
         else:
