@@ -28,7 +28,6 @@ class tmpdir_Test(TestCase):
         self.assertEqual(starting_cwd, final_cwd)
         self.assertFalse(os.path.exists(new_cwd))
 
-    @expectedFailure
     def test_context_as_keyword(self):
         "Entering should return the new path when using `with ctx as name`"
 

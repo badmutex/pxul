@@ -7,6 +7,7 @@ AUTHORS:
 CHANGES:
  - 2015-06-09:
      - rename TmpDir to tmpdir (issue #5)
+     - return the path to the `as` keyword (issue #12)
  - 2015-06-07:
      - Add `fullpath`
      - `ensure_file` should use `fullpath`
@@ -61,6 +62,7 @@ class in_dir(object):
     def __enter__(self):
         ensure_dir(self.dst)
         os.chdir(self.dst)
+        return os.getcwd()
 
     def __exit__(self, *args, **kws):
         os.chdir(self.src)
@@ -69,7 +71,7 @@ class in_dir(object):
         """
         Enter the alternate directory.
         """
-        self.__enter__()
+        return self.__enter__()
 
     def exit(self):
         """
