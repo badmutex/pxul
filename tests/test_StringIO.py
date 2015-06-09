@@ -41,3 +41,26 @@ class StringIO_Test(TestCase):
             s = ref.getvalue()
             self.assertEqual(s, 4*' '+'\n')
 
+    def test_dedent_default(self):
+        "Should dedent if possible"
+        with pxul.StringIO.StringIO() as ref:
+            self.assertEqual(ref.indentlvl, 0)
+            ref.dedent()
+            self.assertEqual(ref.indentlvl, 0)
+            ref.indent()
+
+    def test_write(self):
+        "ref.write('foo') should equal 'foo'"
+        s = 'hello'
+        with pxul.StringIO.StringIO() as ref:
+            ref.write(s)
+            s2 = ref.getvalue()
+            self.assertEqual(s, s2)
+
+    def test_writeln(self):
+        "ref.write('foo') should equal 'foo\n'"
+        s = 'hello'
+        with pxul.StringIO.StringIO() as ref:
+            ref.writeln(s)
+            s2 = ref.getvalue()
+            self.assertEqual(s + '\n', s2)
