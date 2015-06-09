@@ -160,6 +160,8 @@ class fullpath_Test(TestCase):
 
 
 class ensure_file_Test(TestCase):
+    "`ensure_file` should be idempotent"
+
     def test_absent(self):
         "Should create an empty file if it does not exist"
 
@@ -169,3 +171,28 @@ class ensure_file_Test(TestCase):
             self.assertFalse(os.path.exists(name))
             pxul.os.ensure_file(name)
             self.assertTrue(os.path.exists(name))
+
+    def test_present(self):
+        "Should not create a file if it already exists"
+        with pxul.os.TmpDir():
+            name = 'hello.txt'
+            open(name, 'w').close()
+            stat_before = os.stat(name)
+            pxul.os.ensure_file(name)
+            stat_after = os.stat(name)
+            self.assertEqual(stat_before, stat_after)
+
+
+class find_in_path_Test(TestCase):
+    def test_success(self):
+        "Should return the path to an executable"
+        # sh is present on most systems
+        path = pxul.os.find_in_path('sh')
+        self.assertIsNotNone(path)
+        self.assertTrue(os.path.exists(path))
+
+    def test_failure(self):
+        "Should return None if absent"
+        name = uuid.uuid4().hex
+        path = pxul.os.find_in_path(name)
+        self.assertIsNone(path)
