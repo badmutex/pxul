@@ -6,6 +6,7 @@ AUTHORS:
 
 CHANGES:
  - 2015-06-09:
+     - rename StackDir to in_dir (issue #4)
      - rename TmpDir to tmpdir (issue #5)
      - return the path to the `as` keyword (issue #12)
  - 2015-06-07:
