@@ -9,11 +9,11 @@ Welcome to pxul's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    introduction
    installation
-   api/modules
+   documentation
 
 Indices and tables
 ==================
