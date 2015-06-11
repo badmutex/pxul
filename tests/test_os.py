@@ -5,17 +5,17 @@ import tempfile
 import shutil
 import uuid
 
-from unittest import TestCase, expectedFailure
+from unittest import TestCase
 
 
 class tmpdir_Test(TestCase):
     def test_directory_changed(self):
-        "Entering the context should temporarily switch to a different working directory"
+        "Entering the context should temporarily switch working directories"
 
         starting_cwd = os.getcwd()
         with pxul.os.tmpdir():
             new_cwd = os.getcwd()
-            self.assertNotEqual(starting_cwd, new_cwd)            
+            self.assertNotEqual(starting_cwd, new_cwd)
 
     def test_cleanup(self):
         "Exiting the context should remove the temporary directory"
@@ -102,7 +102,7 @@ class clear_dir_Test(TestCase):
 
             # show now be empty
             os.rmdir(tmpdir)
-            
+
         finally:
             if os.path.exists(tmpdir):
                 shutil.rmtree(tmpdir)
@@ -135,6 +135,7 @@ class ensure_dir_Test(TestCase):
 
             self.assertTrue(os.path.exists(cwd))
             self.assertEqual(stat_before, stat_after)
+
 
 class fullpath_Test(TestCase):
     def test_expand_user(self):
