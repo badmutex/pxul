@@ -114,13 +114,13 @@ class env(object):
             else:
                 del os.environ[name]
 
-    def set(self):
+    def activate(self):
         """
         Set the environment
         """
         self.__enter__()
 
-    def unset(self):
+    def deactivate(self):
         """
         Undo the changes to the environment
         """
