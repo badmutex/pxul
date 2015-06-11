@@ -6,9 +6,11 @@ pxul
 
 # Summary
 
+These are extensions to the base Python installation.
+No external dependencies other than Python are required.
+
 Modules provided
   * `command`
-  * `logging`
   * `os`
   * `StringIO`
   
