@@ -77,6 +77,21 @@ class env_Test(TestCase):
             self.assertEqual(v0, os.getenv(k0))
             self.assertEqual(v1, os.getenv(k1))
 
+    def test_env_noctx(self):
+        "Manually activating/deactivating should work"
+        env = pxul.os.env(SPAM='eggs')
+
+        with self.assertRaises(KeyError):
+            spam = os.environ['SPAM']
+
+        env.activate()
+        spam = os.environ['SPAM']
+        self.assertEqual(spam, 'eggs')
+
+        env.deactivate()
+        with self.assertRaises(KeyError):
+            spam = os.environ['SPAM']
+
     def test_cleanup(self):
         "Exiting the context should clear the environment"
 
