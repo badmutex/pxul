@@ -101,10 +101,18 @@ def call(cmd, stdin=None, stdout=None, stderr=None, buffer=-1, input=None):
 
 
 def silent(*args, **kws):
+    """Wraps :func:`call` but redirects *stdout* and *stderr* to ``/dev/null``
+
+    :args: arguments to :func:`call`
+    :kwargs: keyword arguments to :func:`call`
+    :returns: the return code of the subprocess
+    :rtype: :class:`int`
+    """
     with open('/dev/null', 'w') as devnull:
         kws['stdout'] = devnull
         kws['stderr'] = devnull
-        return call(*args, **kws)
+        _, _, ret = call(*args, **kws)
+        return ret
 
 
 def capture_keywords(capture):
