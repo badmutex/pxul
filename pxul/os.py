@@ -5,6 +5,8 @@ AUTHORS:
  - Badi' Abdul-Wahid
 
 CHANGES:
+ - 2015-06-11:
+     - rename clear_dir to remove_children (issue #16)
  - 2015-06-09:
      - rename StackDir to in_dir (issue #4)
      - rename TmpDir to tmpdir (issue #5)
@@ -124,13 +126,13 @@ class SetEnv(object):
         self.__exit__()
 
 
-def clear_dir(dirpath):
+def remove_children(dirpath):
     """
     Recursively delete everything under `dirpath`
     """
     for name in glob.iglob(os.path.join(dirpath, '*')):
         if os.path.isdir(name):
-            clear_dir(name)
+            remove_children(name)
             remove = os.rmdir
         else:
             remove = os.unlink

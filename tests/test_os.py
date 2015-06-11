@@ -86,7 +86,7 @@ class SetEnv_Test(TestCase):
         self.assertIsNone(os.getenv(k))
 
 
-class clear_dir_Test(TestCase):
+class remove_children_Test(TestCase):
     def test_cleanup(self):
         tmpdir = tempfile.mkdtemp()
         hello = os.path.join(tmpdir, 'hello.txt')
@@ -98,7 +98,7 @@ class clear_dir_Test(TestCase):
             with self.assertRaises(OSError):
                 os.rmdir(tmpdir)
 
-            pxul.os.clear_dir(tmpdir)
+            pxul.os.remove_children(tmpdir)
 
             # show now be empty
             os.rmdir(tmpdir)
@@ -112,7 +112,7 @@ class ensure_dir_Test(TestCase):
     def test_absent(self):
         "ensure_dir should create a directory if not present"
         tmpname = 'tmp{}'.format(uuid.uuid4().hex)
-        tmpdir = os.path.join(tempfile.tempdir, tmpname)
+        tmpdir = os.path.join(tempfile.gettempdir(), tmpname)
 
         try:
             self.assertFalse(os.path.exists(tmpdir))
