@@ -5,6 +5,8 @@ AUTHOR:
  - Badi' Abdul-Wahid
 
 CHANGES:
+ - 2015-06-11:
+     - reimplement everything (issue #3)
  - 2014-07-25:
      - propagate CTRL-C to subprocess
      - support specification of flag prefix
@@ -16,123 +18,98 @@ CHANGES:
 """
 from __future__ import absolute_import
 
-from .logging import logger
-from .StringIO import StringIO
-
-import copy
-import os
+import pipes
 import subprocess
-import shlex
+import types
+import logging
+logger = logging.getLogger()
 
 
-class ProcessError(Exception):
-    def __init__(self, retcode, cmd, out):
-        msg = 'Command {} returned non-zero exit code {}\n{}'.format(cmd, retcode, out)
-        super(ProcessError, self).__init__(msg)
+PIPE = subprocess.PIPE
 
-class Process(object):
-    def __init__(self, cmd, **kws):
+
+class ArgumentsError(Exception):
+    "Indicates that parameters to a subprocess were malformed"
+    pass
+
+
+def check_cmd(cmd):
+    "Raises ArgumentsError if malformed cmd"
+    if isinstance(cmd, types.StringType):
+        raise ArgumentsError('Got bare string {}'.format(cmd))
+
+
+class CalledProcessError(Exception):
+    "subprocess.CalledProcessError but with attributes for stderr and stdout"
+    def __init__(self, cmd, retcode, stdout=None, stderr=None):
         self.cmd = cmd
-        self.popen_kws = kws
+        self.retcode = retcode
+        self.stdout = stdout
+        self.stderr = stderr
 
-    def __call__(self):
-        s = self.cmd if type(self.cmd) is str else ' '.join(self.cmd)
-        logger.info1('EXECUTING: %s' % s)
-        proc = subprocess.Popen(self.cmd,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE,
-                                **self.popen_kws)
-        try:
-            out, err = proc.communicate()
-        except KeyboardInterrupt:
-            proc.terminate()
-            proc.kill()
-            raise
 
-        logger.debug('OUTPUT:\n', out + err)
-        if proc.returncode is not 0:
-            raise ProcessError(proc.returncode, self.cmd, err + out)
+def call(cmd, stdin=None, stdout=None, stderr=None, buffer=-1, input=None):
+    logger.debug('Got command {}'.format(cmd))
+    check_cmd(cmd)
+    logger.debug('Calling: {}'.format(' '.join(map(pipes.quote, cmd))))
+    proc = subprocess.Popen(cmd, stdin=stdin, stdout=stdout, stderr=stderr,
+                            bufsize=buffer)
 
-        return out, err
+    try:
+        out, err = proc.communicate(input=input)
+    except KeyboardInterrupt:
+        logger.debug('Caught SIGINT, terminating subprocess')
+        proc.terminate()
+        proc.kill()
+        raise
+
+    logger.debug('Subprocess finished with {}'.format(proc.returncode))
+    if proc.returncode is not 0:
+        raise CalledProcessError(proc.returncode, cmd, stdout=out, stderr=err)
+
+    return out, err, proc.returncode
+
+
+def silent(*args, **kws):
+    with open('/dev/null', 'w') as devnull:
+        kws['stdout'] = devnull
+        kws['stderr'] = devnull
+        return call(*args, **kws)
+
+
+def capture_keywords(capture):
+    kws = {}
+    if capture == 'stdout' or capture == 'both':
+        kws['stdout'] = PIPE
+
+    if capture == 'stderr' or capture == 'both':
+        kws['stderr'] = PIPE
+
+    return kws
 
 
 class Command(object):
-    def __init__(self, path):
-        self._cmd = [path]
+    def __init__(self, cmd, silent=False, capture=None):
+        check_cmd(cmd)
+        self.cmd = cmd
+        self.silent = silent
+        self.capture = capture
 
-    @property
-    def name(self):
-        """Name of the command to execute"""
-        return self._cmd[0]
+        if silent and capture:
+            raise ValueError(
+                "Both 'silent' and 'capture' cannot both be enabled")
 
-    def o(self, arg):
-        """Add CLI option"""
-        self._cmd.extend(shlex.split(arg))
-        return self
+    def add_args(self, args):
+        check_cmd(args)
+        self.cmd.extend(args)
 
-    def _reset(self):
-        self._cmd = [self._cmd[0]]
+    def __call__(self, *args, **call_kws):
+        check_cmd(args)
+        cmd = list(self.cmd) + list(args)
 
-    def __str__(self):
-        return '<%s>' % ' '.join(map(repr, self._cmd))
-
-    def __repr__(self):
-        with StringIO() as sio:
-            sio.write('Command(%r)' % self.name)
-            for o in self._cmd[1:]:
-                sio.writeln('.o(%r)' % repr(o))
-            return sio.getvalue()
-
-    def __call__(self):
-        try:
-            result = Process(self._cmd)()
-        finally:
-            self._reset()
-        return result
-
-
-class OptCommand(Command):
-    """
-    A process that can take short-form command line parameters as keyword
-    arguments. Since arguments passed to __call__ are processed in
-    lexicographical order, this precludes using `OptCommand` for commands
-    in which the order of parameters is important.
-
-    Single-character keywords are prepend by a single dash '-' while longer ones
-    have a double-dash '--' prepended.
-
-    e.g.:
-    To run: foo -a arga -b argb -c --foo --bar 42
-    Write:  OptCommand('foo')(a='arga', b='argb', c=True, foo=True bar=32)
-
-    Returns: (stdout, stderr)
-    """
-
-    def __init__(self, *args, **kws):
-        long_pref = kws.pop('long_flag_prefix', '--')
-        short_pref = kws.pop('short_flag_prefix', '-')
-        super(OptCommand, self).__init__(*args, **kws)
-        self._long_flag_prefix = long_pref
-        self._short_flag_prefix = short_pref
-
-    def __call__(self, **kws):
-        # make a copy so that multiple calls don't keep updating the
-        # parameter list
-        tmp_cmd = copy.deepcopy(self._cmd)
-        for k, v in kws.iteritems():
-            if len(k) == 1:
-                flag = self._short_flag_prefix + k
-            else:
-                flag = self._long_flag_prefix + k
-            if v is None: continue
-            elif type(v) is bool and v:
-                arg = flag
-            else:
-                arg = '%s %s' % (flag, v)
-            self.o(arg)
-
-        # run
-        result = super(OptCommand, self).__call__()
-        self._cmd = tmp_cmd
-        return result
-
+        if self.silent:
+            return silent(cmd, **call_kws)
+        else:
+            kws = capture_keywords(self.capture)
+            call_kws.update(kws)
+            return call(cmd, **call_kws)
