@@ -58,12 +58,35 @@ def check_cmd(cmd):
 
 
 class CalledProcessError(Exception):
-    "subprocess.CalledProcessError but with attributes for stderr and stdout"
+    """Like :class:`subprocess.CalledProcessError` but with attributes for
+    stderr and stdout
+    """
+
     def __init__(self, cmd, retcode, stdout=None, stderr=None):
         self.cmd = cmd
         self.retcode = retcode
         self.stdout = stdout
         self.stderr = stderr
+
+    @property
+    def cmd(self):
+        "The command used"
+        return self.cmd
+
+    @property
+    def retcode(self):
+        "The return value of the child process"
+        return self.retcode
+
+    @property
+    def stdout(self):
+        "The stdout captured from the child process"
+        return self.stdout
+
+    @property
+    def stderr(self):
+        "The stderr captured from the child process"
+        return self.stderr
 
 
 def call(cmd, stdin=None, stdout=None, stderr=None, buffer=-1, input=None):
