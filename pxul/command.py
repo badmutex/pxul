@@ -101,10 +101,14 @@ def call(cmd, stdin=None, stdout=None, stderr=None, buffer=-1, input=None):
     :param input: initial input to pass to stdin
     :returns: the stdout, stderr, and returncode
     :rtype: 3-:class:`tuple`
+    :raises: :class:`ArgumentsError`
+             if the arguments are malformed (see :func:`check_cmd`)
+    :raises: :class:`CalledProcessError` of the subprocess fails
     """
     logger.debug('Got command {}'.format(cmd))
     check_cmd(cmd)
-    logger.debug('Calling: {}'.format(' '.join(map(pipes.quote, cmd))))
+    pretty = ' '.join(map(pipes.quote, cmd))
+    logger.debug('Calling: {}'.format(pretty))
     proc = subprocess.Popen(cmd, stdin=stdin, stdout=stdout, stderr=stderr,
                             bufsize=buffer)
 
@@ -118,9 +122,24 @@ def call(cmd, stdin=None, stdout=None, stderr=None, buffer=-1, input=None):
 
     logger.debug('Subprocess finished with {}'.format(proc.returncode))
     if proc.returncode is not 0:
-        raise CalledProcessError(proc.returncode, cmd, stdout=out, stderr=err)
-
+        raise CalledProcessError(proc.returncode, pretty,
+                                 stdout=out,
+                                 stderr=err)
     return out, err, proc.returncode
+
+
+def unchecked_call(*args, **kws):
+    """Wraps :func:`call` but hides the :class:`CalledProcessError` if thrown
+
+    :args: arguments to :func:`call`
+    :kws: keyword arguments to :func:`call`
+    :returns: the stdout, stderr, and return code
+    :rtype: (stringlike, stringlike, int)
+    """
+    try:
+        return call(*args, **kws)
+    except CalledProcessError, e:
+        return e.stdout, e.stderr, e.retcode
 
 
 def silent(*args, **kws):
