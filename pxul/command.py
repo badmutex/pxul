@@ -34,7 +34,25 @@ class ArgumentsError(Exception):
 
 
 def check_cmd(cmd):
-    "Raises ArgumentsError if malformed cmd"
+    """Raises ArgumentsError if malformed cmd.
+
+    A command is malformed if it is a bare string. This is done to
+    prevent injection of arbitrary commands by untrusted input.  For
+    instance:
+
+    >>> check_cmd('echo hello unsafe; rm -rf /')
+
+    is dangerous. The safer alternative is
+
+    >>> check_cmd(['echo', 'hello', 'safe;', 'rm', '-rf', '/'])
+
+    While a bit more verbose, enforcing this constraint for safety is
+    the better trade-off.
+
+    :param cmd: the command to check
+    :raises: :class:`ArgumentsError` on failure.
+
+    """
     if isinstance(cmd, types.StringType):
         raise ArgumentsError('Got bare string {}'.format(cmd))
 
@@ -49,6 +67,18 @@ class CalledProcessError(Exception):
 
 
 def call(cmd, stdin=None, stdout=None, stderr=None, buffer=-1, input=None):
+    """Call an external command.
+
+    :param cmd: the command to run
+    :type cmd: :class:`list` or *iterable* of strings
+    :param stdin: where to read stdin from
+    :param stdout: where to write stdout to
+    :param stderr: where to write stderr to
+    :param buffer: the buffer size when communicating with the subprocess
+    :param input: initial input to pass to stdin
+    :returns: the stdout, stderr, and returncode
+    :rtype: 3-:class:`tuple`
+    """
     logger.debug('Got command {}'.format(cmd))
     check_cmd(cmd)
     logger.debug('Calling: {}'.format(' '.join(map(pipes.quote, cmd))))

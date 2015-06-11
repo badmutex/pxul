@@ -10,12 +10,19 @@ CHANGES:
 
 
 USAGE:
+
 >>> from pxul.StringIO import StringIO
->>> sio = StringIO()
->>> sio.writeln('hello')
+>>> with StringIO() as ref:
+...   ref.writeln('hello')
+...   ref.indent()
+...   ref.writeln('world')
+...   ref.dedent()
+...   ref.write('!')
+...   return ref.getvalue()
 """
 from __future__ import absolute_import
 import StringIO as stringio
+
 
 class StringIO(stringio.StringIO):
     __doc__ = stringio.StringIO.__doc__
