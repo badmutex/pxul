@@ -30,7 +30,6 @@ class StringIO_Test(TestCase):
         with self.assertRaises(ValueError):
             ref.write('world')
 
-
     def test_indent_default(self):
         "Should indent by default level"
         with pxul.StringIO.StringIO() as ref:
