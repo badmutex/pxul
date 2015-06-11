@@ -89,11 +89,21 @@ class env(object):
     """
     Set the environment variables in `os.environ`.
 
+    .. warning::
+       This will **update** a variable that already exists
+
     >>> with env(PATH='/foo/bar/bin', SPAM='eggs'):
     ...   print os.environ['PATH']
     ...   print os.environ['SPAM']
     /foo/bar/bin
     eggs
+
+    Alternatively
+
+    >>> newenv = env(SPAM='eggs')
+    >>> newenv.activate()
+    >>> # do something
+    >>> newenv.deactivate()
     """
     def __init__(self, **env):
         self._new_env = env
@@ -107,7 +117,7 @@ class env(object):
             os.environ[name] = value
         return self
 
-    def __exit__(self, typ, value, traceback):
+    def __exit__(self, *args, **kwargs):
         for name, value in self._new_env.iteritems():
             if name in self._old_env:
                 os.environ[name] = self._old_env[name]
@@ -167,18 +177,15 @@ def ensure_file(path):
 
 
 def find_in_path(exe, search=None):
+    """Attempts to locate the given executable in the provided search
+    paths. If `search` is ``None``, then the ``PATH`` environment
+    variables is used.
+
+    :param str exe: the executable name
+    :param list of str search: search paths
+    :returns: the full path to the executable
+    :rtype: :class:`None` or :class:`str`
     """
-    Attempts to locate the given executable in the provided search paths.
-    If `search` is none the PATH environment variable is searched.
-
-    Params:
-     exe :: <str> = executable name
-     search :: <list of str> = search paths
-
-    Returns:
-     Either None or full path :: <str>
-    """
-
     search = search \
         if search is not None\
         else os.environ['PATH'].split(os.pathsep)
@@ -191,15 +198,12 @@ def find_in_path(exe, search=None):
 
 def find_in_root(exe, root='/'):
     """Attempts to find the executable name by traversing the directory
-    structure starting at `root`
+    structure starting at `root`.
 
-    Params:
-     exe :: <str> = executable name
-     root :: <str> = prefix to search under
-
-    Returns:
-      Either None or path :: <str>
-
+    :param str exe: executable name
+    :param str root: prefix to start the search from
+    :returns: full path to the executable
+    :rtype: :class:`None` or :class:`str`
     """
     for dirpath, dirnames, filenames in os.walk(root):
         path = os.path.join(dirpath, exe)
