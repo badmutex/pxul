@@ -1,7 +1,7 @@
 pxul
 ====
 
-<b>P</b>ython e<b>X</b>tras and <b>U</b>tilities
+<b>P</b>ython e<b>X</b>tras and <b>U</b>ti<b>l</b>ities
 
 
 # Summary
