@@ -48,6 +48,7 @@ class tmpdir(object):
         self._sd.exit()
         shutil.rmtree(self._d)
 
+
 class in_dir(object):
     """
     Temporarily enter a directory before return the the current one.
@@ -79,6 +80,7 @@ class in_dir(object):
         Exit the alternate directory
         """
         self.__exit__()
+
 
 class SetEnv(object):
     """
@@ -121,6 +123,7 @@ class SetEnv(object):
         """
         self.__exit__()
 
+
 def clear_dir(dirpath):
     """
     Recursively delete everything under `dirpath`
@@ -148,11 +151,13 @@ def ensure_dir(path):
     if not os.path.exists(path):
         os.makedirs(path)
 
+
 def ensure_file(path):
     """
     Make sure the `path` is a file by creating it if needed.
     """
-    if os.path.exists(path): return
+    if os.path.exists(path):
+        return
     root = os.path.dirname(fullpath(path))
     ensure_dir(root)
     open(path, 'w').close()
@@ -171,15 +176,19 @@ def find_in_path(exe, search=None):
      Either None or full path :: <str>
     """
 
-    search = search if search is not None else os.environ['PATH'].split(os.pathsep)
+    search = search \
+        if search is not None\
+        else os.environ['PATH'].split(os.pathsep)
+
     for prefix in search:
         path = os.path.join(prefix, exe)
         if os.path.exists(path) and os.access(path, os.X_OK):
             return path
 
+
 def find_in_root(exe, root='/'):
-    """
-    Attempts to find the executable name by traversing the directory structure starting at `root`
+    """Attempts to find the executable name by traversing the directory
+    structure starting at `root`
 
     Params:
      exe :: <str> = executable name
@@ -187,6 +196,7 @@ def find_in_root(exe, root='/'):
 
     Returns:
       Either None or path :: <str>
+
     """
     for dirpath, dirnames, filenames in os.walk(root):
         path = os.path.join(dirpath, exe)
