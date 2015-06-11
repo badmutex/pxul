@@ -115,7 +115,13 @@ def silent(*args, **kws):
         return ret
 
 
-def capture_keywords(capture):
+def _capture_keywords(capture):
+    """Generate the keywords to capture the output of a subprocess
+
+    :param capture: one of {stdout | stderr | both}
+    :returns: the keyword arguments
+    :rtype: :class:`dict`
+    """
     kws = {}
     if capture == 'stdout' or capture == 'both':
         kws['stdout'] = PIPE
@@ -148,6 +154,6 @@ class Command(object):
         if self.silent:
             return silent(cmd, **call_kws)
         else:
-            kws = capture_keywords(self.capture)
+            kws = _capture_keywords(self.capture)
             call_kws.update(kws)
             return call(cmd, **call_kws)
