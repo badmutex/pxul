@@ -132,7 +132,26 @@ def _capture_keywords(capture):
     return kws
 
 
-class Command(object):
+class Builder(object):
+    """Utility for building commands which can be called with more
+    specific arguments later.
+
+    Instances of :class:`Builder` are :func:`callable`. This is the
+    intended usage when invoking a :class:`Builder` to call the
+    subprocess.
+
+    >>> echo = Builder(['echo', 'hello', capture='stdout')
+    >>> out, _, _ = echo()
+    >>> out == '\\n'
+    True
+    >>> out, _, _ = echo('world')
+    >>> print out
+    world
+    >>> out, _, _ = echo('universe')
+    >>> print out
+    universe
+
+    """
     def __init__(self, cmd, silent=False, capture=None):
         check_cmd(cmd)
         self.cmd = cmd

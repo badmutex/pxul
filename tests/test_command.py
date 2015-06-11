@@ -28,23 +28,23 @@ class Command_Test(TestCase):
         "Should throw if command is malformed"
         c = 'ls'
         with self.assertRaises(pxul.command.ArgumentsError):
-            pxul.command.Command(c)
+            pxul.command.Builder(c)
 
     def test_init_list1(self):
         "Should create a Command from a one-element list"
         c = ['ls']
-        cmd = pxul.command.Command(c)
+        cmd = pxul.command.Builder(c)
         self.assertListEqual(cmd.cmd, c)
 
     def test_init_listN(self):
         "Should create a Command of an n-element list"
         c = ['echo'] + [str(i) for i in xrange(10)]
-        cmd = pxul.command.Command(c)
+        cmd = pxul.command.Builder(c)
         self.assertListEqual(cmd.cmd, c)
 
     def test_call_no_args(self):
         "Call with no arguments"
-        echo = pxul.command.Command(['echo'], capture='both')
+        echo = pxul.command.Builder(['echo'], capture='both')
         out, err, ret = echo()
         self.assertEqual(out.strip(), '')
         self.assertEqual(err.strip(), '')
@@ -52,13 +52,13 @@ class Command_Test(TestCase):
 
     def test_call_with_args(self):
         "Call with arguments"
-        echo = pxul.command.Command(['echo'], capture='both')
+        echo = pxul.command.Builder(['echo'], capture='both')
         out, err, ret = echo('hello', 'world')
         self.assertEqual(out.strip(), 'hello world')
 
     def test_object_immutable(self):
         "__call__ should not modify the state of the object"
-        echo = pxul.command.Command(['echo'], silent=True)
+        echo = pxul.command.Builder(['echo'], silent=True)
         original = copy.deepcopy(echo.__dict__)
         echo('hello', 'world')
         self.assertDictEqual(original, echo.__dict__)
