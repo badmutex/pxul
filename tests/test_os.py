@@ -59,7 +59,7 @@ class in_dir_Test(TestCase):
             os.rmdir(tmpdir)
 
 
-class SetEnv_Test(TestCase):
+class env_Test(TestCase):
     def new_env(self):
         name = 'SET_ENV_TEST_{}'.format(uuid.uuid4().hex)
         value = '{}'.format(uuid.uuid4().hex)
@@ -73,7 +73,7 @@ class SetEnv_Test(TestCase):
         k1, v1 = self.new_env()
         self.assertIsNone(os.getenv(k1))
 
-        with pxul.os.SetEnv(**{k0: v0, k1: v1}):
+        with pxul.os.env(**{k0: v0, k1: v1}):
             self.assertEqual(v0, os.getenv(k0))
             self.assertEqual(v1, os.getenv(k1))
 
@@ -81,7 +81,7 @@ class SetEnv_Test(TestCase):
         "Exiting the context should clear the environment"
 
         k, v = self.new_env()
-        with pxul.os.SetEnv(**{k: v}):
+        with pxul.os.env(**{k: v}):
             pass
         self.assertIsNone(os.getenv(k))
 

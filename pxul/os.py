@@ -85,11 +85,11 @@ class in_dir(object):
         self.__exit__()
 
 
-class SetEnv(object):
+class env(object):
     """
     Set the environment variables in `os.environ`.
 
-    >>> with SetEnv(PATH='/foo/bar/bin', SPAM='eggs'):
+    >>> with env(PATH='/foo/bar/bin', SPAM='eggs'):
     ...   print os.environ['PATH']
     ...   print os.environ['SPAM']
     /foo/bar/bin
