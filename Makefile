@@ -1,4 +1,5 @@
 
+APIDIR = docs/api
 
 export PYTHONPATH += $(PWD)
 
@@ -12,10 +13,11 @@ help:
 
 clean:
 	make -C docs clean
+	rm -r $(APIDIR)
 	python setup.py clean
 
 docs:
-	sphinx-apidoc -o docs/api pxul
+	sphinx-apidoc -o $(APIDIR) pxul
 	make -C docs html
 
 test:
