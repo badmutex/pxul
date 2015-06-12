@@ -33,6 +33,57 @@ class call_Test(TestCase):
         self.assertEqual(result.ret, 0)
 
 
+class run_Test(TestCase):
+    def test_default_ok(self):
+        "Default configuration should work with good input"
+        res = pxul.command.run(['echo', 'hello'])
+        self.assertIsNone(res.out)
+        self.assertIsNone(res.err)
+        self.assertEqual(res.ret, 0)
+
+    def test_default_bad(self):
+        "Default configuration should raise an error on bad input"
+        with self.assertRaises(pxul.command.ArgumentsError):
+            pxul.command.run('echo bad')
+
+    def test_capture_stdin(self):
+        "Should capture the stdout"
+        res = pxul.command.run(['echo', 'hello'], capture='stdout')
+        self.assertEqual(res.out.strip(), 'hello')
+
+    def test_capture_stdout(self):
+        "Should capture the stderr"
+        res = pxul.command.run(['echo', 'hello'], capture='stderr')
+        self.assertEqual(res.err.strip(), '')
+
+    def test_capture_both(self):
+        "Should capture both stdout and stderr"
+        res = pxul.command.run(['echo', 'hello'], capture='both')
+        self.assertEqual(res.out.strip(), 'hello')
+        self.assertEqual(res.err.strip(), '')
+
+    def test_capture_silent(self):
+        "Should make stdout and stderr invisible"
+        res = pxul.command.run(['echo', 'hello'], capture='silent')
+        self.assertIsNone(res.out)
+        self.assertIsNone(res.err)
+
+    def test_raises_false_ok(self):
+        "A valid command should run fine"
+        res = pxul.command.run(['echo', 'hello'], capture='both', raises=False)
+        self.assertEqual(res.out.strip(), 'hello')
+        self.assertEqual(res.err.strip(), '')
+        self.assertEqual(res.ret, 0)
+
+    def test_raises_false_bad_command(self):
+        "A failing command should return non-zero exit code"
+        res = pxul.command.run(['touch', '/unallowed'],
+                               capture='both', raises=False)
+        self.assertEqual(res.out.strip(), '')
+        self.assertTrue(res.err.startswith('touch: cannot touch'))
+        self.assertNotEqual(res.ret, 0)
+
+
 class Command_Test(TestCase):
     def test_init_check(self):
         "Should throw if command is malformed"
@@ -68,7 +119,7 @@ class Command_Test(TestCase):
 
     def test_object_immutable(self):
         "__call__ should not modify the state of the object"
-        echo = pxul.command.Builder(['echo'], silent=True)
+        echo = pxul.command.Builder(['echo'], capture='silent')
         original = copy.deepcopy(echo.__dict__)
         echo('hello', 'world')
         self.assertDictEqual(original, echo.__dict__)

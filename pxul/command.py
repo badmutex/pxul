@@ -7,6 +7,7 @@ AUTHOR:
 CHANGES:
  - 2015-06-12:
      - return Result from `call` (issue #26)
+     - add `run` (issue #27)
  - 2015-06-11:
      - reimplement everything (issue #3)
  - 2014-07-25:
@@ -29,6 +30,7 @@ logger = logging.getLogger()
 
 
 PIPE = subprocess.PIPE
+DEVNULL = open('/dev/null', 'w')
 
 
 class ArgumentsError(Exception):
@@ -67,30 +69,30 @@ class CalledProcessError(Exception):
     """
 
     def __init__(self, cmd, retcode, stdout=None, stderr=None):
-        self.cmd = cmd
-        self.retcode = retcode
-        self.stdout = stdout
-        self.stderr = stderr
+        self._cmd = cmd
+        self._retcode = retcode
+        self._stdout = stdout
+        self._stderr = stderr
 
     @property
     def cmd(self):
         "The command used"
-        return self.cmd
+        return self._cmd
 
     @property
     def retcode(self):
         "The return value of the child process"
-        return self.retcode
+        return self._retcode
 
     @property
     def stdout(self):
         "The stdout captured from the child process"
-        return self.stdout
+        return self._stdout
 
     @property
     def stderr(self):
         "The stderr captured from the child process"
-        return self.stderr
+        return self._stderr
 
 
 Result = collections.namedtuple('Result', ['out', 'err', 'ret'])
@@ -129,40 +131,41 @@ def call(cmd, stdin=None, stdout=None, stderr=None, buffer=-1, input=None):
 
     logger.debug('Subprocess finished with {}'.format(proc.returncode))
     if proc.returncode is not 0:
-        raise CalledProcessError(proc.returncode, pretty,
+        raise CalledProcessError(pretty, proc.returncode,
                                  stdout=out,
                                  stderr=err)
     result = Result(out=out, err=err, ret=proc.returncode)
     return result
 
 
-def unchecked_call(*args, **kws):
-    """Wraps :func:`call` but hides the :class:`CalledProcessError` if thrown
+def run(cmd, capture=None, raises=True, buffer=-1, input=None):
+    """Wrapper over :func:`call` with a simpler interface
 
-    :args: arguments to :func:`call`
-    :kws: keyword arguments to :func:`call`
-    :returns: the stdout, stderr, and return code
-    :rtype: (stringlike, stringlike, int)
+    **Capture Options**
+
+
+    - `stdout`: capture the standard output
+    - `stderr`: capture the standard error
+    - `both`: capture both stdout and stderr
+    - `silent`: hide all output of the child process
+
+    :param list of str cmd: the command to call (as in :func:`call`)
+    :param str capture: capture options
+    :param bool raises: raise an exception on non-zero return of child
+    :param int buffer: buffer size (as in :class:`subprocess.Popen`)
+    :param str input: input value (as in :class:`subprocess.Popen.communicate`)
+    :returns: the result
+    :rtype: :class:`Result`
     """
+    kws = _capture_keywords(capture)
+
     try:
-        return call(*args, **kws)
+        return call(cmd, buffer=buffer, input=input, **kws)
     except CalledProcessError, e:
-        return e.stdout, e.stderr, e.retcode
-
-
-def silent(*args, **kws):
-    """Wraps :func:`call` but redirects *stdout* and *stderr* to ``/dev/null``
-
-    :args: arguments to :func:`call`
-    :kwargs: keyword arguments to :func:`call`
-    :returns: the return code of the subprocess
-    :rtype: :class:`int`
-    """
-    with open('/dev/null', 'w') as devnull:
-        kws['stdout'] = devnull
-        kws['stderr'] = devnull
-        _, _, ret = call(*args, **kws)
-        return ret
+        if raises:
+            raise
+        else:
+            return Result(out=e.stdout, err=e.stderr, ret=e.retcode)
 
 
 def _capture_keywords(capture):
@@ -178,6 +181,10 @@ def _capture_keywords(capture):
 
     if capture == 'stderr' or capture == 'both':
         kws['stderr'] = PIPE
+
+    if capture == 'silent':
+        kws['stdout'] = DEVNULL
+        kws['stderr'] = DEVNULL
 
     return kws
 
@@ -199,15 +206,10 @@ class Builder(object):
     hello universe
     """
 
-    def __init__(self, cmd, silent=False, capture=None):
+    def __init__(self, cmd, capture=None):
         check_cmd(cmd)
         self.cmd = cmd
-        self.silent = silent
         self.capture = capture
-
-        if silent and capture:
-            raise ValueError(
-                "Both 'silent' and 'capture' cannot both be enabled")
 
     def add_args(self, args):
         check_cmd(args)
@@ -217,9 +219,6 @@ class Builder(object):
         check_cmd(args)
         cmd = list(self.cmd) + list(args)
 
-        if self.silent:
-            return silent(cmd, **call_kws)
-        else:
-            kws = _capture_keywords(self.capture)
-            call_kws.update(kws)
-            return call(cmd, **call_kws)
+        kws = _capture_keywords(self.capture)
+        call_kws.update(kws)
+        return call(cmd, **call_kws)

@@ -211,10 +211,3 @@ class find_in_path_Test(TestCase):
         name = uuid.uuid4().hex
         path = pxul.os.find_in_path(name)
         self.assertIsNone(path)
-
-
-class silent_test(TestCase):
-    def test_return(self):
-        "Should return only the exit code of the subprocess"
-        ret = pxul.command.silent(['echo', 'hello', 'world'])
-        self.assertEqual(ret, 0)
