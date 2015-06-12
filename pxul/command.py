@@ -42,7 +42,8 @@ def check_cmd(cmd):
 
     >>> check_cmd('echo hello unsafe; rm -rf /')
 
-    is dangerous. The safer alternative is
+    is dangerous and thus considered and error. The safer alternative
+    is
 
     >>> check_cmd(['echo', 'hello', 'safe;', 'rm', '-rf', '/'])
 
@@ -183,17 +184,14 @@ class Builder(object):
     subprocess.
 
     >>> echo = Builder(['echo', 'hello', capture='stdout')
-    >>> out, _, _ = echo()
-    >>> out == '\\n'
-    True
-    >>> out, _, _ = echo('world')
-    >>> print out
-    world
-    >>> out, _, _ = echo('universe')
-    >>> print out
-    universe
-
+    >>> print echo()[0].strip()
+    hello
+    >>> print echo('world')[0].strip()
+    hello world
+    >>> print echo('universe')[0].strip()
+    hello universe
     """
+
     def __init__(self, cmd, silent=False, capture=None):
         check_cmd(cmd)
         self.cmd = cmd
