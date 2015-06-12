@@ -8,6 +8,7 @@ CHANGES:
  - 2015-06-12:
      - return Result from `call` (issue #26)
      - add `run` (issue #27)
+     - rename module to `subprocess` (issue #29)
  - 2015-06-11:
      - reimplement everything (issue #3)
  - 2014-07-25:
