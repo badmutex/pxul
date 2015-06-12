@@ -13,7 +13,7 @@ help:
 
 clean:
 	make -C docs clean
-	rm -r $(APIDIR)
+	rm -rf $(APIDIR)
 	python setup.py clean
 
 docs:
