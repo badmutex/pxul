@@ -5,6 +5,8 @@ AUTHOR:
  - Badi' Abdul-Wahid
 
 CHANGES:
+ - 2015-06-12:
+     - return Result from `call` (issue #26)
  - 2015-06-11:
      - reimplement everything (issue #3)
  - 2014-07-25:
@@ -18,6 +20,7 @@ CHANGES:
 """
 from __future__ import absolute_import
 
+import collections
 import pipes
 import subprocess
 import types
@@ -90,6 +93,9 @@ class CalledProcessError(Exception):
         return self.stderr
 
 
+Result = collections.namedtuple('Result', ['out', 'err', 'ret'])
+
+
 def call(cmd, stdin=None, stdout=None, stderr=None, buffer=-1, input=None):
     """Call an external command.
 
@@ -100,8 +106,8 @@ def call(cmd, stdin=None, stdout=None, stderr=None, buffer=-1, input=None):
     :param stderr: where to write stderr to
     :param buffer: the buffer size when communicating with the subprocess
     :param input: initial input to pass to stdin
-    :returns: the stdout, stderr, and returncode
-    :rtype: 3-:class:`tuple`
+    :returns: the stdout, stderr, and returncode as a namedtuple
+    :rtype: :class:`Result`
     :raises: :class:`ArgumentsError`
              if the arguments are malformed (see :func:`check_cmd`)
     :raises: :class:`CalledProcessError` of the subprocess fails
@@ -126,7 +132,8 @@ def call(cmd, stdin=None, stdout=None, stderr=None, buffer=-1, input=None):
         raise CalledProcessError(proc.returncode, pretty,
                                  stdout=out,
                                  stderr=err)
-    return out, err, proc.returncode
+    result = Result(out=out, err=err, ret=proc.returncode)
+    return result
 
 
 def unchecked_call(*args, **kws):

@@ -22,6 +22,16 @@ class call_Test(TestCase):
         self.assertIsNotNone(ret)
         self.assertEqual(ret, 0)
 
+    def test_returns_namedtuple(self):
+        "Result should be a named tuple"
+        result = pxul.command.call(['echo', 'hello', 'world'],
+                                   stdout=pxul.command.PIPE,
+                                   stderr=pxul.command.PIPE)
+        self.assertIsInstance(result, pxul.command.Result)
+        self.assertEqual(result.out.strip(), 'hello world')
+        self.assertEqual(result.err.strip(), '')
+        self.assertEqual(result.ret, 0)
+
 
 class Command_Test(TestCase):
     def test_init_check(self):
