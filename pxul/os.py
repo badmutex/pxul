@@ -35,11 +35,28 @@ import tempfile
 
 
 class tmpdir(object):
+    """Create a temprorary directory to work in.  This is intended to be
+    used as part of a `with`-statement, where entering the context
+    creates the directory. All statements executing within the context
+    begin in the temporary directory. Exiting the context restores the
+    original working directory and removes the temporary directory and
+    its contents.
+
+    >>> with tmpdir() as tmppath:
+    ...   print tmppath == os.getcwd()
+    True
+    >>> print tmppath == os.getcwd()
+    False
+    >>> print os.path.exists(tmppath)
+    False
+
+    Accepts the same arguments as :func:`tempfile.mkdtemp`
+
     """
-    Create a temprorary directory to work in
-    """
+
     def __init__(self, *args, **kws):
-        "Accepts the same arguments as `tempfile.mkdtemp`"
+        "Accepts the same arguments as :func:`tempfile.mkdtemp`"
+
         self._d = tempfile.mkdtemp(*args, **kws)
         self._sd = in_dir(self._d)
 
