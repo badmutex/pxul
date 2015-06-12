@@ -15,4 +15,5 @@ setup(
     author_email = 'abdulwahidc@gmail.com',
     description = 'A collection of Python extras and utilities',
     license = 'GPLv2',
+    url='https://github.com/badi/pxul'
     )
