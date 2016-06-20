@@ -27,7 +27,7 @@ import pipes
 import subprocess
 import types
 import logging
-logger = logging.getLogger()
+logger = logging.getLogger('pxul')
 
 
 PIPE = subprocess.PIPE
