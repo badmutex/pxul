@@ -22,6 +22,7 @@ USAGE:
 """
 from __future__ import absolute_import
 import StringIO as stringio
+import types
 
 
 class StringIO(stringio.StringIO):
@@ -69,7 +70,9 @@ class StringIO(stringio.StringIO):
         else:
             self.write_indented(s)
 
-    def writeln(self, s):
+    def writeln(self, s=None):
         """Write a string followed by a newline"""
-        self.write(s)
+        if s is not None:
+            assert isinstance(s, types.StringTypes)
+            self.write(s)
         stringio.StringIO.write(self, '\n')
