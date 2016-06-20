@@ -33,6 +33,9 @@ import glob
 import shutil
 import tempfile
 
+import logging
+logger = logging.getLogger('pxul')
+
 
 class tmpdir(object):
     """Create a temprorary directory to work in.  This is intended to be
@@ -83,10 +86,12 @@ class in_dir(object):
 
     def __enter__(self):
         ensure_dir(self.dst)
+        logger.debug('Switching to %s', self.dst)
         os.chdir(self.dst)
         return os.getcwd()
 
     def __exit__(self, *args, **kws):
+        logger.debug('Switching to %s', self.src)
         os.chdir(self.src)
 
     def enter(self):
@@ -127,6 +132,7 @@ class env(object):
         self._old_env = dict()
 
     def __enter__(self):
+        logger.debug('Switching to new environment')
         for name, value in self._new_env.iteritems():
             value = str(value)
             if name in os.environ:
@@ -135,6 +141,7 @@ class env(object):
         return self
 
     def __exit__(self, *args, **kwargs):
+        logger.debug('Switching to old environment')
         for name, value in self._new_env.iteritems():
             if name in self._old_env:
                 os.environ[name] = self._old_env[name]
@@ -179,6 +186,7 @@ def ensure_dir(path):
     Make sure the `path` if a directory by creating it if needed.
     """
     if not os.path.exists(path):
+        logging.debug('Creating missing directory %s', path)
         os.makedirs(path)
 
 
@@ -190,6 +198,7 @@ def ensure_file(path):
         return
     root = os.path.dirname(fullpath(path))
     ensure_dir(root)
+    logger.debug('Creating missing file %s', path)
     open(path, 'w').close()
 
 
