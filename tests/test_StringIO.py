@@ -2,19 +2,23 @@ import pxul.StringIO
 
 from unittest import TestCase
 
+import hypothesis.strategies as st
+from hypothesis import given
+
 
 class StringIO_Test(TestCase):
-    def test_context_enter(self):
+
+    @given(st.text())
+    def test_context_enter(self, s):
         "Entering the StringIO context should be possible"
 
-        s = 'hello'
         with pxul.StringIO.StringIO(s) as ref:
             self.assertEqual(ref.getvalue(), s)
 
-    def test_context_exit(self):
+    @given(st.text())
+    def test_context_exit(self, s):
         "Accessing the ref outside the context should be an error"
 
-        s = 'hello'
         with pxul.StringIO.StringIO(s) as ref:
             pass
 
@@ -48,17 +52,17 @@ class StringIO_Test(TestCase):
             self.assertEqual(ref.indentlvl, 0)
             ref.indent()
 
-    def test_write(self):
+    @given(st.text())
+    def test_write(self, s):
         "ref.write('foo') should equal 'foo'"
-        s = 'hello'
         with pxul.StringIO.StringIO() as ref:
             ref.write(s)
             s2 = ref.getvalue()
             self.assertEqual(s, s2)
 
-    def test_writeln(self):
-        "ref.write('foo') should equal 'foo\n'"
-        s = 'hello'
+    @given(st.text())
+    def test_writeln(self, s):
+        "ref.write(string) should equal string + '\\n'"
         with pxul.StringIO.StringIO() as ref:
             ref.writeln(s)
             s2 = ref.getvalue()
