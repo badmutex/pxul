@@ -7,6 +7,9 @@ import uuid
 
 from unittest import TestCase
 
+import hypothesis.strategies as st
+from hypothesis import given, example
+
 
 class tmpdir_Test(TestCase):
     def test_directory_changed(self):
@@ -99,6 +102,37 @@ class env_Test(TestCase):
         with pxul.os.env(**{k: v}):
             pass
         self.assertIsNone(os.getenv(k))
+
+
+class source_Test(TestCase):
+
+    @given(st.one_of(
+        st.just('sh'),
+        st.just('bash'),
+    ))
+    def test_source(self, shell):
+        "Sourcing paths to define new environment"
+
+        with pxul.os.tmpdir():
+
+            # only sh-like shells currently supported
+            self.assertIn(shell, ['sh', 'bash'])
+            spec = [ ('a.{}'.format(shell), 'export FOO=hello'),
+                     ('b.{}'.format(shell), 'export BAR=world\nexport NOT_PRESENT=42'),
+                     ('c.{}'.format(shell), 'unset NOT_PRESENT')
+            ]
+
+            for name, cmds in spec:
+                with open(name, 'w') as fd:
+                    fd.write(cmds)
+
+            paths = [name for name, _ in spec]
+            with pxul.os.source(paths):
+                self.assertIn('FOO', os.environ)
+                self.assertIn('BAR', os.environ)
+                self.assertNotIn('NOT_PRESENT', os.environ)
+                self.assertEqual(os.environ['FOO'], 'hello')
+                self.assertEqual(os.environ['BAR'], 'world')
 
 
 class remove_children_Test(TestCase):
