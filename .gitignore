@@ -53,3 +53,5 @@ coverage.xml
 docs/_build/
 
 pxul/version.py
+venv
+.hypothesis

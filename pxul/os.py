@@ -5,6 +5,8 @@ AUTHORS:
  - Badi' Abdul-Wahid
 
 CHANGES:
+ - 2016-06-24:
+     - Add `source` (issue #33)
  - 2015-06-11:
      - rename clear_dir to remove_children (issue #16)
  - 2015-06-09:
@@ -28,6 +30,9 @@ CHANGES:
      - Add `SetEnv`
 """
 from __future__ import absolute_import
+
+from . import subprocess as pxul_subprocess
+
 import os
 import glob
 import shutil
@@ -159,6 +164,59 @@ class env(object):
         Undo the changes to the environment
         """
         self.__exit__()
+
+
+def _source_shlike(paths, shell):
+    """Implementation of :func:`source` for sh-like shells
+    """
+
+    # sanity check
+    supported_shells = ['sh', 'bash']
+    if not shell in supported_shells:
+        msg = '%r is not know to be an sh-like shell' % shell
+        logger.error(msg)
+        raise ValueError(msg)
+
+    # fullpaths are needed 
+    fullpaths = map(fullpath, paths)
+    cmds = ['source {} 1>&2'.format(p) for p in fullpaths] + ['env']
+    script = ';'.join(cmds)
+    torun  = [shell, '-c', script]
+    result = pxul_subprocess.run(torun, capture='both', raises=False)
+
+    if not result.ret == 0:
+        msg = 'Failed to run %r:\n%s' % (script, result.err)
+        logger.error(msg)
+        raise ValueError(msg)
+
+    env = dict()
+    for line in result.out.split('\n'):
+        if '=' not in line: continue
+        var, val = line.split('=', 1)
+        env[var] = val
+
+    return env
+
+
+def source(paths, shell='sh'):
+    """Source these files and return a new environment
+
+    :param paths: paths that define changes to the environment
+    :type  paths: :class:`list` of :class:`str` filepaths
+    :param shell: the shell program to use
+    :type  shell: :class:`str`
+    :returns: the new environment definition
+    :rtype: :class:`env`
+    """
+
+    if shell == 'sh' or shell == 'bash':
+        envdict = _source_shlike(paths, shell)
+    else:
+        msg = 'Unsupported shell %r' % shell
+        logger.error(msg)
+        raise NotImplementedError(msg)
+
+    return env(**envdict)
 
 
 def remove_children(dirpath):
