@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 from setup_util import write_version_module
 
-VERSION = '2.0.0'
+VERSION = '3.0.0'
 
 write_version_module(VERSION, 'pxul/version.py')
 
