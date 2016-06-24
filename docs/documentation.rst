@@ -2,6 +2,8 @@ Documentation
 ======================================================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
-   api/pxul
+   api/os
+   api/StringIO
+   api/subprocess
